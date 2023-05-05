@@ -8,7 +8,7 @@ A powershell script for detecting SYSVOL enumeration. SYSVOL is enumerated by se
 1. Save the create_honeydir.ps1 file on your domain controller.
 2. Open a powershell command prompt on your domain controller and run as Admin.
 3. Run create_honeydir.ps1 to create the groups.xml file in "C:\Windows\SYSVOL\domain\Policies\"
-4. Enable the following setting in your GPO: Computer Configuraion>Policies>Windows Settings>Security Settings>Advanced Audit Policy Configuration>Object Access>Audit File System and select "Failure"
+4. Enable the following setting in your GPO: Computer Configuraion>Policies>Windows Settings>Security Settings>Advanced Audit Policy Configuration>Object Access>Audit File System and select both "Success" and "Failure"
 
 ## Detection Criteria
     type=windows
