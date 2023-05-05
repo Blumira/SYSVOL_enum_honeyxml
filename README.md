@@ -19,4 +19,4 @@ and select both "Success" and "Failure"
     windows_event_id=5145
     file_path like 'groups.xml'
     
- The subject_account_name will always be the computer account, which ends in a $, and the process will always be the Distributed File System Replication program that replicates data across servers.
+ The subject_account_name will always be the account that was compromised by the attacker, which means they either have the password or the password hash.
