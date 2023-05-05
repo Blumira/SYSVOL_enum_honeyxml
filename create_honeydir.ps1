@@ -44,17 +44,15 @@ $groupsXml = @"
 "@
 
 # Save Groups.xml file
-$groupsXml | Out-File -Encoding utf8 "C:\Windows\SYSVOL\domain\Policies\Groups.xml"
+$groupsXml | Out-File -Encoding utf8 "C:\Windows\SYSVOL\domain\Policies\groups.xml"
 
 # Set Advanced Security Audit Settings
-$acl = Get-Acl "C:\Windows\SYSVOL\domain\Policies\Groups.xml"
+$acl = Get-Acl "C:\Windows\SYSVOL\domain\Policies\groups.xml"
 $auditRule = New-Object System.Security.AccessControl.FileSystemAuditRule("Everyone", "ReadAndExecute", "Success,Failure")
 $acl.AddAuditRule($auditRule)
-Set-Acl "C:\Windows\SYSVOL\domain\Policies\Groups.xml" $acl
+Set-Acl "C:\Windows\SYSVOL\domain\Policies\groups.xml" $acl
 
 # Set file permissions
 $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ReadAndExecute", "Deny")
 $acl.SetAccessRule($rule)
-Set-Acl "C:\Windows\SYSVOL\domain\Policies\Groups.xml" $acl
- 
-
+Set-Acl "C:\Windows\SYSVOL\domain\Policies\groups.xml" $acl
