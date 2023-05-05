@@ -1,6 +1,12 @@
 # This script creates the groups.xml file in the syslog policies directory of your domain controller for detecting SYSVOL enumeration with tools such as CrackMapExec and Impacket
 Import-Module ActiveDirectory
-add-type -AssemblyName System.Web
+Add-Type -AssemblyName System.Web
+
+# Check if groups.xml already exists
+if (Test-Path -Path "C:\Windows\SYSVOL\domain\Policies\groups.xml") {
+    Write-Error "Error: groups.xml already exists."
+    exit 1
+}
 
 # Generate random strings
 $randomStrings = 1..10 | ForEach-Object { [System.Web.Security.Membership]::GeneratePassword(32,4) }
