@@ -7,7 +7,7 @@ A powershell script for detecting SYSVOL enumeration with two files with fake cr
 
 1. Save the create_honeydir.ps1 file on your domain controller.
 2. Open a powershell command prompt on your domain controller and run as Admin.
-3. Run create_honeydir.ps1 to create the groups.xml file in "C:\Windows\SYSVOL\domain\Policies\"
+3. Run create_honeyxml.ps1 to create both the registry.xml and datasources.xml files in "C:\Windows\SYSVOL\domain\Policies\"
 4. If you aren't already seeing 5145 security logs, you can enable them by using the following setting in your GPO:
 
        Computer Configuraion>Policies>Windows Settings>Security Settings>Advanced Audit Policy Configuration>Object Access>Audit Detailed File Share
