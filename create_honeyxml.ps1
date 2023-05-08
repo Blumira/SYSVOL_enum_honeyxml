@@ -1,64 +1,45 @@
-# This script creates the groups.xml file in the syslog policies directory of your domain controller for detecting SYSVOL enumeration with tools such as CrackMapExec and Impacket
+# This script creates the Datasources.xml file in the syslog policies directory of your domain controller for detecting SYSVOL enumeration with tools such as CrackMapExec and Impacket
 Import-Module ActiveDirectory
 Add-Type -AssemblyName System.Web
 
-# Check if groups.xml already exists
-if (Test-Path -Path "C:\Windows\SYSVOL\domain\Policies\groups.xml") {
-    Write-Error "Error: groups.xml already exists."
+# Check if Datasources.xml already exists
+if (Test-Path -Path "C:\Windows\SYSVOL\domain\Policies\Datasources.xml") {
+    Write-Error "Error: Datasources.xml already exists."
     exit 1
 }
 
-# Generate random strings
-$randomStrings = 1..10 | ForEach-Object { [System.Web.Security.Membership]::GeneratePassword(32,4) }
+# Generate random $plaintext and $encryptedtext
+$plainText = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_})
+$key = New-Object Byte[] 16
+[Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($key)
+$encryptedText = [System.Convert]::ToBase64String($key) + '::' + [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($plainText))
 
-# Create Groups.xml file
-$groupsXml = @"
-<?xml version="1.0" encoding="utf-8"?>
-<Groups clsid="$($randomStrings[0])" disabled="1">
- <User clsid="$($randomStrings[1])" name="$($randomStrings[9])" image="2" changed="$((Get-Date).ToString('yyyy-MM-dd HH:mm:ss'))" uid="$($randomStrings[2])">
- <Properties
- action="U"
- newName=""
- fullName="$($randomStrings[3])"
- description="$($randomStrings[4])"
- cpassword="$($randomStrings[5])"
- changeLogon="0"
- noChange="0"
- neverExpires="0"
- acctDisabled="1"
- userName="$($randomStrings[6])"/>
- </User>
- <Group clsid="$($randomStrings[7])" name="$($randomStrings[8])" image="2" changed="$((Get-Date).ToString('yyyy-MM-dd HH:mm:ss'))" uid="$($randomStrings[9])">
- <Properties
- action="U"
- newName=""
- description="$($randomStrings[4])"
- userAction="REMOVE"
- deleteAllUsers="1"
- deleteAllGroups="1"
- removeAccounts="0"
- groupName="$($randomStrings[8])">
- <Members>
- <Member
- name="domain\sampleuser"
- action="ADD"
- sid=""/>
- </Members>
- </Properties>
- </Group>
-</Groups>
+
+# Create Datasources.xml file
+$DatasourcesXml = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<datasource-mapping>
+    <datasource>
+        <catalog-connection-name>Connection1</catalog-connection-name>
+        <connection-type>JDBC</connection-type>
+        <driver>sun.jdbc.odbc.JdbcOdbcDriver</driver>
+        <url>jdbc:odbc</url>
+        <user>$plaintext</user>
+        <password>$encryptedText</password>
+    </datasource>
+</datasource-mapping>
 "@
 
-# Save Groups.xml file
-$groupsXml | Out-File -Encoding utf8 "C:\Windows\SYSVOL\domain\Policies\groups.xml"
+# Save Datasources.xml file
+$DatasourcesXml | Out-File -Encoding utf8 "C:\Windows\SYSVOL\domain\Policies\Datasources.xml"
 
 # Set Advanced Security Audit Settings
-$acl = Get-Acl "C:\Windows\SYSVOL\domain\Policies\groups.xml"
+$acl = Get-Acl "C:\Windows\SYSVOL\domain\Policies\Datasources.xml"
 $auditRule = New-Object System.Security.AccessControl.FileSystemAuditRule("Everyone", "ReadAndExecute", "Success,Failure")
 $acl.AddAuditRule($auditRule)
-Set-Acl "C:\Windows\SYSVOL\domain\Policies\groups.xml" $acl
+Set-Acl "C:\Windows\SYSVOL\domain\Policies\Datasources.xml" $acl
 
 # Set file permissions
 $rule = New-Object System.Security.AccessControl.FileSystemAccessRule("Everyone", "ReadAndExecute", "Deny")
 $acl.SetAccessRule($rule)
-Set-Acl "C:\Windows\SYSVOL\domain\Policies\groups.xml" $acl
+Set-Acl "C:\Windows\SYSVOL\domain\Policies\Datasources.xml" $acl
