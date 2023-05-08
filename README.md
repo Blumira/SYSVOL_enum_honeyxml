@@ -1,7 +1,7 @@
 # SYSVOL_enum_honeyxml
 
 ## Purpose
-A powershell script for detecting SYSVOL enumeration. SYSVOL is enumerated by several tools including CrackMapExec and Impacket. They scan the SYSVOL directory of a windows domain, looking for saved passwords on domain controllers. By adding this file along with file auditing you can detect such a scan in your environment. For more information click here.
+A powershell script for detecting SYSVOL enumeration with two files with fake credentials. SYSVOL is enumerated by several tools including CrackMapExec and Impacket. They scan the SYSVOL directory of a windows domain, looking for saved passwords on domain controllers. By adding this file along with file auditing you can detect such a scan in your environment. For more information click here.
 
 ## Instructions
 
@@ -15,8 +15,9 @@ A powershell script for detecting SYSVOL enumeration. SYSVOL is enumerated by se
 and select both "Success" and "Failure"
 
 ## Detection Criteria
-    type=windows
-    windows_event_id=5145
-    file_path like 'groups.xml'
+    type='windows'
+    windows_event_id in (5145)
+    file_path contains 'Registry.xml' or '%DataSources.xml'
+    object_path like '%SYSVOL%'
     
- The subject_account_name will always be the account that was compromised by the attacker, which means they either have the password or the password hash.
+NOTE: The subject_account_name will always be the account that was compromised by the attacker, which means they either have the password or the password hash. Based on our testing there are very many potential FPs due to the amount of vulnerability scanners, backup solutions, etc in an environment, so it should be tuned depending on those activities being present.
